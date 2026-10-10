@@ -14,17 +14,20 @@ export default function Settings() {
   const [busy, setBusy] = useState(false);
 
   const fee = identity?.feeWallet.publicKey;
-  const refresh = useCallback(async () => {
-    if (!fee) return;
-    try {
-      setBalance(await getBalanceSol(makeConnection(settings.rpcUrl), fee));
-    } catch {
-      setBalance(null);
-    }
-  }, [fee, settings.rpcUrl]);
+  const loadBalance = useCallback(
+    () => (fee ? getBalanceSol(makeConnection(settings.rpcUrl), fee).catch(() => null) : Promise.resolve(null)),
+    [fee, settings.rpcUrl],
+  );
+  const refresh = useCallback(async () => setBalance(await loadBalance()), [loadBalance]);
   useEffect(() => {
-    refresh();
-  }, [refresh]);
+    let cancelled = false;
+    loadBalance().then((b) => {
+      if (!cancelled) setBalance(b);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [loadBalance]);
 
   if (!identity || !fee) return null;
   const blocked = contacts.filter((c) => c.blocked);

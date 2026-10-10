@@ -60,9 +60,11 @@ export function MessengerProvider({ children }: { children: ReactNode }) {
 
   // Refs give async work (sync, send) the latest values without re-subscribing.
   const contactsRef = useRef(contacts);
-  contactsRef.current = contacts;
   const messagesRef = useRef(messages);
-  messagesRef.current = messages;
+  useEffect(() => {
+    contactsRef.current = contacts;
+    messagesRef.current = messages;
+  }, [contacts, messages]);
   const syncingRef = useRef(false);
 
   const connection = useMemo(() => makeConnection(settings.rpcUrl), [settings.rpcUrl]);

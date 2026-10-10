@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { Keypair } from '@solana/web3.js';
 import nacl from 'tweetnacl';
+import { Buffer } from 'buffer';
 import {
   exportRecoveryKey,
   generateSeed,
